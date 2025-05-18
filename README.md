@@ -1,0 +1,174 @@
+
+# Notification Service
+
+A Spring Boot application that provides a notification system to send email, SMS, and in-app notifications to users.
+
+## Features
+
+- RESTful API for sending and retrieving notifications
+- Support for multiple notification types (Email, SMS, In-App)
+- Asynchronous processing with RabbitMQ queue
+- Automatic retry mechanism for failed notifications
+- User preference settings for opting out of notification types
+- Transactional processing to ensure data consistency
+
+## Prerequisites
+
+- Java 17 or higher
+- Maven 3.6 or higher
+- RabbitMQ server (for message queuing)
+
+## Technology Stack
+
+- Spring Boot 3.x
+- Spring Data JPA
+- Spring AMQP (for RabbitMQ integration)
+- Hibernate ORM
+- H2 Database (for development)
+
+## Getting Started
+
+### 1. Install RabbitMQ
+
+You need to have RabbitMQ installed and running. You can:
+
+- Download and install from [RabbitMQ official website](https://www.rabbitmq.com/download.html)
+
+### 2. Clone the repository
+
+```bash
+git clone https://github.com/ADJK321/Notification_Backend.git
+cd Notification_Backend
+```
+
+### 3. Build the application
+
+```bash
+mvn clean package
+```
+
+### 4. Run the application
+
+```bash
+mvn spring-boot:run
+```
+
+Or run the generated JAR file:
+
+```bash
+java -jar target/notification-service-0.0.1-SNAPSHOT.jar
+```
+
+The application will be available at `http://localhost:8080`
+
+## API Endpoints
+
+### Send a Notification
+
+```
+POST /api/notifications
+```
+
+Request Body:
+```json
+{
+  "userId": 1,
+  "type": "EMAIL",
+  "subject": "Welcome",
+  "content": "Welcome to our platform!",
+  "priority": "NORMAL"
+}
+```
+
+### Get User Notifications
+
+```
+GET /api/users/1/notifications
+```
+
+## Postman Testing
+
+You can use [Postman](https://www.postman.com/) to verify the endpoints:
+
+- **POST**: `http://localhost:8080/api/notifications`
+- **GET**: `http://localhost:8080/api/users/1/notifications`
+
+## Architecture Overview
+
+The system follows a layered architecture:
+
+1. **Controller Layer**: Handles HTTP requests and responses
+2. **Service Layer**: Contains business logic for notification processing
+3. **Repository Layer**: Interfaces with the database
+4. **Model Layer**: Defines the data entities
+
+### Notification Workflow
+
+1. Client sends a notification request
+2. The request is validated and saved to the database
+3. Notification ID is published to RabbitMQ queue
+4. NotificationProcessor consumes from the queue and processes the notification
+5. Based on the notification type and user preferences, the appropriate service is called
+6. Status is updated to SENT or FAILED
+7. Failed notifications are automatically retried based on the retry schedule
+
+## Database Schema
+
+### Users Table
+- id (PK)
+- name
+- email
+- phone_number
+- email_enabled (boolean)
+- sms_enabled (boolean)
+- in_app_enabled (boolean)
+
+### Notifications Table
+- id (PK)
+- user_id (FK)
+- type (enum: EMAIL, SMS, IN_APP)
+- subject
+- content
+- status (enum: PENDING, SENT, FAILED)
+- priority (enum: LOW, NORMAL, HIGH)
+- retry_count
+- created_at
+- updated_at
+- sent_at
+
+## Common Issues and Solutions
+
+### LazyInitializationException
+
+If you encounter a Hibernate LazyInitializationException when accessing User properties in the NotificationProcessor:
+
+1. Add `@Transactional` to the processNotification method
+2. This ensures the Hibernate session remains open during processing
+
+```java
+@RabbitListener(queues = "notification.queue")
+@Transactional
+public void processNotification(Long notificationId) {
+    // Method implementation
+}
+```
+
+## Assumptions Made
+
+1. Users are pre-registered in the system
+2. The notification service focuses solely on delivery, not content generation
+3. Each notification type has its own handling service
+4. Users can opt out of specific notification types
+5. Failed notifications should be retried automatically
+6. For demonstration purposes, actual delivery is simulated
+
+## Future Improvements
+
+1. Add authentication and authorization
+2. Implement actual email and SMS provider integrations
+3. Add notification templates with variable substitution
+4. Implement read/unread status for in-app notifications
+5. Add pagination for retrieving notifications
+6. Implement more sophisticated retry mechanisms with exponential backoff
+7. Add batch processing capabilities for sending notifications to multiple users
+8. Implement notification analytics (delivery rates, open rates, etc.)
