@@ -28,11 +28,73 @@ A Spring Boot application that provides a notification system to send email, SMS
 
 ## Getting Started
 
+
 ### 1. Install RabbitMQ
 
-You need to have RabbitMQ installed and running. You can:
+You need to have RabbitMQ installed and running. Follow these steps:
 
-- Download and install from [RabbitMQ official website](https://www.rabbitmq.com/download.html)
+#### 🐇 Step 1: Install Erlang (Required)
+
+RabbitMQ is built on Erlang, so you **must install Erlang first**.
+
+* Download the latest [Erlang/OTP Windows Installer](https://www.erlang.org/downloads).
+* Install it and make sure to **add Erlang to your system PATH**.
+
+#### 🐇 Step 2: Install RabbitMQ Server
+
+* Download the RabbitMQ Windows installer from the [official RabbitMQ website](https://www.rabbitmq.com/download.html).
+* Install it after Erlang is successfully installed.
+* After installation, the RabbitMQ server is installed as a **Windows service**.
+
+#### ✅ Step 3: Enable the RabbitMQ Management Plugin (Optional but recommended)
+
+```bash
+rabbitmq-plugins enable rabbitmq_management
+```
+
+Now you can access the RabbitMQ Dashboard at:
+**[http://localhost:15672](http://localhost:15672)**
+(Default username: `guest`, password: `guest`)
+
+---
+
+### 🟢 Start RabbitMQ
+
+To start RabbitMQ as a service:
+
+```bash
+net start RabbitMQ
+```
+
+OR
+
+```bash
+rabbitmq-server
+```
+
+> If installed via installer, it should run automatically as a background service.
+
+---
+
+### 🔴 Stop RabbitMQ
+
+To stop RabbitMQ:
+
+```bash
+net stop RabbitMQ
+```
+
+OR (if started manually):
+
+Press `Ctrl + C` in the terminal where it’s running.
+
+---
+
+### 🛠 Verify RabbitMQ is Running
+
+Open a browser and go to [http://localhost:15672](http://localhost:15672).
+If the dashboard opens, you’re good to go!
+
 
 ### 2. Clone the repository
 
