@@ -53,13 +53,9 @@ mvn clean package
 mvn spring-boot:run
 ```
 
-Or run the generated JAR file:
 
-```bash
-java -jar target/notification-service-0.0.1-SNAPSHOT.jar
-```
 
-The application will be available at `http://localhost:8080`
+The application will be available at `http://localhost:8080`  -> Error will show BUT USE POSTMAN Everything is fine .
 
 ## API Endpoints
 
